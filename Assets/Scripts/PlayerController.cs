@@ -5,53 +5,83 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField]
-    Transform playerTransform;
-    [SerializeField]
-    Transform cameraTransform;
-    [SerializeField]
-    CharacterController characterController;
+    public Transform playerTransform;
+    public Transform cameraTransform;
+    public Rigidbody rb;
 
     [Header("Controls")]
-    [SerializeField]
-    float mouseSensitivity;
-    [SerializeField]
-    float movementSpeed;
+    public float mouseSensitivity;
+    
+    [Header("Physics Based Movement")]
+    public float maxMovementSpeed;
+    public float maxAcceleration;
+    public float maxDecceleration;
 
-
+    //used for movement and camera rotation
+    float horizontalMouseMovement;
+    float verticalMouseMovement;
     float verticalCameraRotation;
-    Vector3 currentGravityForce;
+    Vector3 movementVector;
+
 
     void Start()
     {
-        Cursor.lockState = CursorLockMode.Locked;
+        //Cursor.lockState = CursorLockMode.Locked;
     }
 
     void Update()
     {
-        #region lookAround
+        #region Calculate Input
 
-        float horizontalMouseMovement = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
-        float verticalMouseMovement = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
+        //mouse input
+        horizontalMouseMovement = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
+        verticalMouseMovement = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
+
+      
+        //movement input
+        movementVector = Vector3.zero;
+        float horizontalMovementInput = Input.GetAxis("Horizontal");
+        float verticalMovementInput = Input.GetAxis("Vertical");
+        movementVector = playerTransform.TransformDirection(new Vector3(horizontalMovementInput, 0f, verticalMovementInput)); //convert the movement vector from local player space into world space
+        
+        #endregion
+    }
+
+    private void FixedUpdate()
+    {
+        #region Apply Camera Rotation
 
         verticalCameraRotation -= verticalMouseMovement;
         verticalCameraRotation = Mathf.Clamp(verticalCameraRotation, -85f, 85f);
 
         cameraTransform.localRotation = Quaternion.Euler(verticalCameraRotation, 0f, 0f);
-        playerTransform.Rotate(playerTransform.up * horizontalMouseMovement);
+        rb.MoveRotation(rb.rotation * Quaternion.Euler(playerTransform.up * horizontalMouseMovement));
 
         #endregion
 
-        #region playerMovement
+        #region Apply Movement
 
-        Vector3 movementVector = Vector3.zero;
+        Vector3 rbHorizontalVelocity = new Vector3(rb.velocity.x, 0, rb.velocity.z);
+        Vector3 targetVelocity = movementVector * maxMovementSpeed;
+        Vector3 deltaV = targetVelocity - rbHorizontalVelocity;
+        Vector3 accel = deltaV / Time.fixedDeltaTime;
 
-        float horizontalMovementInput = Input.GetAxis("Horizontal");
-        float verticalMovementInput = Input.GetAxis("Vertical");
-        movementVector = playerTransform.TransformDirection(new Vector3(horizontalMovementInput, 0f, verticalMovementInput)); //convert the movement vector from local player space into world space
-  
-        characterController.Move(movementVector * movementSpeed * Time.deltaTime);
-        characterController.Move(new Vector3(0f, -0.5f, 0f)); //very simple simulated gravity
+        if ((rbHorizontalVelocity + accel).sqrMagnitude > rbHorizontalVelocity.sqrMagnitude)
+        {
+            //accelerate
+            if (accel.sqrMagnitude > maxAcceleration * maxAcceleration)
+                accel = accel.normalized * maxAcceleration;
+        }
+        else
+        {
+            //deccelerate
+            if (accel.sqrMagnitude > maxDecceleration * maxDecceleration)
+                accel = accel.normalized * maxDecceleration;
+
+        }
+
+        rb.AddForce(accel, ForceMode.Acceleration);
+
         #endregion
     }
 }
