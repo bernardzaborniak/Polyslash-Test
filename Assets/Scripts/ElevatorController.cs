@@ -15,6 +15,10 @@ public class ElevatorController : MonoBehaviour
     public float maxElevatorSpeed;
     public float elevatorAcceleration;
 
+    [Header("Logic")]
+    [Tooltip("if this is true, the elevator will hold a queue of all the floors it has to visit and will visit them in the pressed order - just like in real life")]
+    public bool useQueue;
+
     //forr keeping track of floors
     Vector3 currentTargetFloorPosition;
  
@@ -282,5 +286,11 @@ public class ElevatorController : MonoBehaviour
     {
         currentTargetFloorPosition = elevatorStopsManager.GetStopPostion(floorID);
         SetNewState(es_Moving);
+    }
+
+    public void OnElevatorButtonPressed(ElevatorButton pressedButton)
+    {
+        pressedButton.SetPressed();
+        MoveToFloor(pressedButton.targetFloorID);
     }
 }

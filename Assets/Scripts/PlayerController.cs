@@ -17,6 +17,10 @@ public class PlayerController : MonoBehaviour
     public float maxAcceleration;
     public float maxDecceleration;
 
+    [Header("For Clicking Buttons")]
+    public float clickButtonRaycastDistance;
+    public LayerMask clickButtonRaycastLayermask;
+
     //used for movement and camera rotation
     float horizontalMouseMovement;
     float verticalMouseMovement;
@@ -26,12 +30,12 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
-        //Cursor.lockState = CursorLockMode.Locked;
+        Cursor.lockState = CursorLockMode.Locked;
     }
 
     void Update()
     {
-        #region Calculate Input
+        #region Get Input
 
         //mouse input
         horizontalMouseMovement = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
@@ -43,7 +47,21 @@ public class PlayerController : MonoBehaviour
         float horizontalMovementInput = Input.GetAxis("Horizontal");
         float verticalMovementInput = Input.GetAxis("Vertical");
         movementVector = playerTransform.TransformDirection(new Vector3(horizontalMovementInput, 0f, verticalMovementInput)); //convert the movement vector from local player space into world space
-        
+
+        //interaction
+        if (Input.GetMouseButtonDown(0))
+        {
+            RaycastHit hit;
+            if (Physics.Raycast(cameraTransform.position, cameraTransform.forward, out hit, clickButtonRaycastDistance, clickButtonRaycastLayermask))
+            {
+                IInteractable interactable = hit.collider.GetComponent<IInteractable>();
+                if (interactable != null)
+                {
+                    interactable.Interact();
+                }
+            }
+        }
+
         #endregion
     }
 
@@ -84,4 +102,6 @@ public class PlayerController : MonoBehaviour
 
         #endregion
     }
+
+    
 }
