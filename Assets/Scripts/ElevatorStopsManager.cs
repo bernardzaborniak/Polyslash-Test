@@ -11,7 +11,7 @@ using UnityEngine;
 public class ElevatorStopsManager : MonoBehaviour
 {
     [Tooltip("the order of the stops is important")]
-    public Transform[] elevatorStops;
+    public ElevatorStop[] elevatorStops;
 
     public Mesh gizmoMesh;
 
@@ -27,7 +27,12 @@ public class ElevatorStopsManager : MonoBehaviour
 
     public Vector3 GetStopPostion(int floorID)
     {
-        return elevatorStops[floorID].position;
+        return elevatorStops[floorID].transform.position;
+    }
+
+    public Door GetOuterElevatorDoor(int floorID)
+    {
+        return elevatorStops[floorID].door;
     }
 
 
@@ -38,7 +43,7 @@ public class ElevatorStopsManager : MonoBehaviour
         for (int i = 0; i < elevatorStops.Length; i++)
         {
             // Gizmos.DrawCube(elevatorStops[i].position, Vector3.one);
-            Gizmos.DrawMesh(gizmoMesh, elevatorStops[i].position, elevatorStops[i].rotation, Vector3.one);
+            Gizmos.DrawMesh(gizmoMesh, elevatorStops[i].transform.position, elevatorStops[i].transform.rotation, Vector3.one);
         }
     }
 }
