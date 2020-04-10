@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-/*
- * This class controlls the elevator, it moves it, opens the doors etc...
- */
+
+// This class controlls the elevator using a state machine.
+
 public class ElevatorController : MonoBehaviour
 {
     [Header("References")]
@@ -19,8 +19,6 @@ public class ElevatorController : MonoBehaviour
     float maxElevatorAcceleration;
 
     [Header("Doors")]
-    //[Tooltip("if this is true, the elevator will hold a queue of all the floors it has to visit and will visit them in the pressed order - just like in real life")]
-    //public bool useQueue; //Will not be implemented for this test
     [SerializeField]
     float timeBeforeDoorAutomaticallyCloses;
     [SerializeField]
@@ -39,15 +37,16 @@ public class ElevatorController : MonoBehaviour
     AudioClip closingDoorsAudio;
     [SerializeField]
     AudioClip closingDoorsErrorAudio;
+    [SerializeField]
+    AudioClip elevatorMusic;
 
-    //forr keeping track of target floors
+
+    ElevatorButton lastPressedButton;
+
     ElevatorStop targetStop;
     ElevatorStop lastTargetStop;
 
-    //keep track of the button currently pressed
-    ElevatorButton lastPressedButton;
-
-    //elevator states ES_ used as abbreviation for ElevatorState
+    // Elevator states "ES_" is used as abbreviation for ElevatorState.
     ElevatorState currentState;
     ES_WaitingClosedDoor es_WaitingClosedDoor;
     ES_WaitingOpenDoor es_WaitingOpenDoor;   
@@ -59,7 +58,8 @@ public class ElevatorController : MonoBehaviour
 
     class ElevatorState
     {
-        protected ElevatorController eC;//abbreviation to make code more readable
+        // An abbreviation to make code more readable.
+        protected ElevatorController eC;
 
         public ElevatorState(ElevatorController elevatorController)
         {
@@ -97,7 +97,7 @@ public class ElevatorController : MonoBehaviour
         }
     }
 
-    //elevator is waiting for duty with doors closed
+    // In this state the elevator is waiting for duty with doors closed.
     class ES_WaitingClosedDoor : ElevatorState
     {
         public ES_WaitingClosedDoor(ElevatorController elevatorController) : base(elevatorController)
@@ -116,7 +116,7 @@ public class ElevatorController : MonoBehaviour
         }
     }
 
-    //elevator is waiting for duty with doors opened, they close after x seconds
+    // In this state the elevator is waiting for duty with doors opened, they close after x seconds.
     class ES_WaitingOpenDoor : ElevatorState
     {
         float closeDoorTime;
@@ -150,7 +150,7 @@ public class ElevatorController : MonoBehaviour
         }
     }
 
-    //elevator moves smoothly between current position and TargetFloor
+    // In this state the elevator moves smoothly between current position and target position.
     class ES_Moving : ElevatorState
     {
         float maxSpeed;
@@ -158,8 +158,9 @@ public class ElevatorController : MonoBehaviour
         float currentVelocity;
         bool goUp;
         float remainingDistance;
-        float currentBreakDistance; //what distance does the elevator need to deccelerate to 0 at its current speed , calculated with no friction
-        bool brake; //should the elevator brake?
+        //Represents the distance the elevator needs to deccelerate to 0 m/s at its current speed. Calculated without considering friction.
+        float currentBreakDistance; 
+        bool brake;
 
         public ES_Moving(ElevatorController elevatorController) : base(elevatorController)
         {
@@ -171,21 +172,32 @@ public class ElevatorController : MonoBehaviour
         {
             currentVelocity = 0;
 
-            //audio
-            eC.elevatorSpeaker.clip = eC.movingAudio;
-            eC.elevatorSpeaker.loop = true;
-            eC.elevatorSpeaker.Play();
+            // audio
+            eC.elevatorMechanicAudioSource.clip = eC.movingAudio;
+            eC.elevatorMechanicAudioSource.loop = true;
+            eC.elevatorMechanicAudioSource.Play();
+
+            if (eC.IsPlayerInsideElevator())
+            {
+                eC.elevatorSpeaker.clip = eC.elevatorMusic;
+                eC.elevatorSpeaker.loop = true;
+                eC.elevatorSpeaker.Play();
+            }
+         
         }
 
         public override void OnStateExit()
         {
             eC.elevatorSpeaker.Stop();
             eC.elevatorSpeaker.loop = false;
+
+            eC.elevatorMechanicAudioSource.Stop();
+            eC.elevatorMechanicAudioSource.loop = false;
         }
 
         public override void UpdateState()
         {
-            //should the elevator start to brake?
+            // Determine whether the elevator should start to brake.
             remainingDistance = (eC.targetStop.transform.position - eC.transform.position).magnitude;
             currentBreakDistance = currentVelocity * currentVelocity / (2 * maxAcceleration);
 
@@ -201,7 +213,7 @@ public class ElevatorController : MonoBehaviour
             float deltaVelocity;
             float acceleration;
 
-            //calculate deltaVelocity
+            // calculate deltaVelocity
             if (brake)
             {
                 deltaVelocity = 0 - currentVelocity;
@@ -218,7 +230,7 @@ public class ElevatorController : MonoBehaviour
                 }
             }
 
-            //calculate acceleration
+            // calculate acceleration
             acceleration = deltaVelocity / Time.deltaTime;
            
             if (acceleration > maxAcceleration)
@@ -230,11 +242,11 @@ public class ElevatorController : MonoBehaviour
                 acceleration = -maxAcceleration;
             }
 
-            //apply movement
+            // apply movement
             currentVelocity += acceleration * Time.deltaTime;
             eC.transform.position += new Vector3(0,  currentVelocity*Time.deltaTime, 0);
 
-            //check if arrived
+            // check if arrived
             if (eC.transform.position == eC.targetStop.transform.position)
             {
                 eC.lastPressedButton.SetReadyToBePressed();
@@ -302,7 +314,7 @@ public class ElevatorController : MonoBehaviour
             eC.OpenDoors();
             endStateTime = Time.time + eC.doorOpenOrCloseTime;
 
-            //audio
+            // audio
             eC.elevatorMechanicAudioSource.clip = eC.openDoorsAudio;
             eC.elevatorMechanicAudioSource.Play();
         }
@@ -362,7 +374,7 @@ public class ElevatorController : MonoBehaviour
 
     public void OnElevatorButtonPressed(ElevatorButton pressedButton)
     {
-        //if we push the same button repeatedly or the button for the floor we are currently on, nothing will happen
+        // If the same button is pushed repeatedly or the button for the floor the elevator is currently on is pushed, nothing will happen.
         if (lastPressedButton != null)
         {
             if (lastPressedButton != pressedButton)
@@ -394,7 +406,6 @@ public class ElevatorController : MonoBehaviour
         pressedButton.SetPressed();
         lastPressedButton = pressedButton;
 
-        //lastTargetStop = targetStop;
         targetStop = pressedButton.targetStop;
 
         currentState.OnMoveToAnotherFloorOrderIssued();
@@ -408,16 +419,29 @@ public class ElevatorController : MonoBehaviour
     void CloseDoors()
     {
         elevatorDoor.Close();
-        Debug.Log("last Target Stop: " + lastTargetStop);
         lastTargetStop.door.Close();
     }
 
     void OpenDoors()
     {
         elevatorDoor.Open();
-        Debug.Log("last Target Stop: " + lastTargetStop);
-
         lastTargetStop.door.Open();
+    }
+
+    bool IsPlayerInsideElevator()
+    {
+        Collider[] colliders;
+        colliders = Physics.OverlapBox(transform.position + transform.up, new Vector3(2, 2, 2));
+
+        for (int i = 0; i < colliders.Length; i++)
+        {
+            if(colliders[i].tag == "Player")
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
 }

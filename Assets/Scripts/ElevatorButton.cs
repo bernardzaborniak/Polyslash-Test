@@ -6,7 +6,6 @@ using UnityEngine.Events;
 [RequireComponent(typeof(Collider))]
 public class ElevatorButton : MonoBehaviour, IInteractable
 {
-
     public ElevatorStop targetStop;
 
     [SerializeField]
@@ -38,13 +37,13 @@ public class ElevatorButton : MonoBehaviour, IInteractable
         onPress.Invoke();
     }
 
-    //the button will change color to highligth that it has been pressed
+    // The button will change color to highligth that it has been pressed.
     public void SetPressed()
     {
         meshRenderer.material = pressedMaterial;
     }
 
-    //the button will change color to highligth that it waits to be pressed
+    // The button will change color back to its normal color to highligth that it waits to be pressed.
     public void SetReadyToBePressed()
     {
         meshRenderer.material = normalMaterial;

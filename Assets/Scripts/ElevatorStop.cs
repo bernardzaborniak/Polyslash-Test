@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-/*
- * represents elevator stops or the floors an elevator can stop on
- */
+
+// This class represents elevator stops/floors an elevator can stop on.
 public class ElevatorStop : MonoBehaviour
 {
     public Door door;

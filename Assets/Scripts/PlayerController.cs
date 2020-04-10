@@ -30,7 +30,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     LayerMask clickButtonRaycastLayermask;
 
-    //used for movement and camera rotation
+    // For movement and camera rotation
     float horizontalMouseMovement;
     float verticalMouseMovement;
     float verticalCameraRotation;
@@ -47,18 +47,18 @@ public class PlayerController : MonoBehaviour
     {
         #region Get Input
 
-        //mouse input
+        // mouse input
         horizontalMouseMovement = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
         verticalMouseMovement = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
 
       
-        //movement input
+        // movement input
         movementVector = Vector3.zero;
         float horizontalMovementInput = Input.GetAxis("Horizontal");
         float verticalMovementInput = Input.GetAxis("Vertical");
         movementVector = playerTransform.TransformDirection(new Vector3(horizontalMovementInput, 0f, verticalMovementInput)); //convert the movement vector from local player space into world space
 
-        //interaction
+        // interaction
         if (Input.GetMouseButtonDown(0))
         {
             RaycastHit hit;
@@ -96,13 +96,13 @@ public class PlayerController : MonoBehaviour
 
         if ((rbHorizontalVelocity + accel).sqrMagnitude > rbHorizontalVelocity.sqrMagnitude)
         {
-            //accelerate
+            // accelerate
             if (accel.sqrMagnitude > maxAcceleration * maxAcceleration)
                 accel = accel.normalized * maxAcceleration;
         }
         else
         {
-            //deccelerate
+            // deccelerate
             if (accel.sqrMagnitude > maxDecceleration * maxDecceleration)
                 accel = accel.normalized * maxDecceleration;
 

@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-/*
- * informs the elevator controller, if the player has entered the dangerous door area
- */
- [RequireComponent(typeof(Collider))]
+
+// This class informs the ElevatorController whether the player has entered the dangerous door area.
+[RequireComponent(typeof(Collider))]
 public class DoorPhototube : MonoBehaviour
 {
     [SerializeField]

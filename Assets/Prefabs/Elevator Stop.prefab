@@ -145,6 +145,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 5607282343961973056}
     m_Modifications:
+    - target: {fileID: 5091434457531384261, guid: 3cd83c3e1adda4a44bbb02d44abeebe4,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 4f6fe27a07727394696a19748e90b9ca, type: 2}
     - target: {fileID: 5916909160884117312, guid: 3cd83c3e1adda4a44bbb02d44abeebe4,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -200,11 +205,21 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7089682874113257449, guid: 3cd83c3e1adda4a44bbb02d44abeebe4,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 4f6fe27a07727394696a19748e90b9ca, type: 2}
     - target: {fileID: 7225546561618865491, guid: 3cd83c3e1adda4a44bbb02d44abeebe4,
         type: 3}
       propertyPath: m_Name
       value: elevator_outer_door
       objectReference: {fileID: 0}
+    - target: {fileID: 8969651327869409679, guid: 3cd83c3e1adda4a44bbb02d44abeebe4,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: cb44aff0f31ebb14e831de181ae15cc1, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3cd83c3e1adda4a44bbb02d44abeebe4, type: 3}
 --- !u!4 &624774787100395748 stripped
