@@ -21,9 +21,15 @@ public class ElevatorController : MonoBehaviour
     [Tooltip("if this is true, the elevator will hold a queue of all the floors it has to visit and will visit them in the pressed order - just like in real life")]
     public bool useQueue;
 
+    [Header("Audio Feedback")]
+    public AudioSource audioSource;
+    public AudioClip openDoorsAudio;
+    public AudioClip movingAudio;
+    public AudioClip closingDoorsAudio;
+
     //forr keeping track of floors
     Vector3 currentTargetFloorPosition;
-    int currentTartgetFloorID;
+    int currentTargetFloorID;
     int previousTartgetFloorID;
 
     //keep track of the buttons currently pressed
@@ -37,6 +43,7 @@ public class ElevatorController : MonoBehaviour
     ES_Moving es_Moving;
     ES_OpeningDoor es_OpeningDoor;
     ES_ClosingDoor es_ClosingDoor;
+    ES_OpeningDoorBecausePlayerSteppedIn es_OpeningDoorBecausePlayerSteppedIn;
 
     #region Elevator States Implementation
 
@@ -65,6 +72,11 @@ public class ElevatorController : MonoBehaviour
         }
 
         public virtual void OnMoveToFloorOrderIssued()
+        {
+
+        }
+
+        public virtual void OnPlayerEntersDangerousArea()
         {
 
         }
@@ -144,11 +156,16 @@ public class ElevatorController : MonoBehaviour
         public override void OnStateEnter()
         {
             currentVelocity = 0;
+
+            //audio
+            eC.audioSource.clip = eC.movingAudio;
+            eC.audioSource.loop = true;
+            eC.audioSource.Play();
         }
 
         public override void OnStateExit()
         {
-
+            eC.audioSource.loop = false;
         }
 
         public override void UpdateState()
@@ -234,6 +251,8 @@ public class ElevatorController : MonoBehaviour
             if (eC.transform.position == eC.currentTargetFloorPosition)
             {
                 Debug.Log("arrived");
+                eC.currentlyPressedButton.SetReadyToBePressed();
+                eC.previousTartgetFloorID = eC.currentTargetFloorID;
                 eC.SetNewState(eC.es_OpeningDoor);
             }
         }
@@ -252,6 +271,10 @@ public class ElevatorController : MonoBehaviour
         {
             eC.CloseDoors();
             endStateTime = Time.time + eC.doorOpenOrCloseTime;
+
+            //audio
+            eC.audioSource.clip = eC.closingDoorsAudio;
+            eC.audioSource.Play();
         }
 
         public override void OnStateExit()
@@ -265,6 +288,11 @@ public class ElevatorController : MonoBehaviour
             {
                 eC.SetNewState(eC.es_Moving);
             }
+        }
+
+        public override void OnPlayerEntersDangerousArea()
+        {
+            eC.SetNewState(eC.es_OpeningDoorBecausePlayerSteppedIn);
         }
     }
 
@@ -281,6 +309,10 @@ public class ElevatorController : MonoBehaviour
         {
             eC.OpenDoors();
             endStateTime = Time.time + eC.doorOpenOrCloseTime;
+
+            //audio
+            eC.audioSource.clip = eC.openDoorsAudio;
+            eC.audioSource.Play();
         }
 
         public override void OnStateExit()
@@ -304,6 +336,43 @@ public class ElevatorController : MonoBehaviour
         }
     }
 
+    //if the door opens to prevent harm to the player, but it still wants to close
+    class ES_OpeningDoorBecausePlayerSteppedIn : ElevatorState
+    {
+        float waitTime = 2;
+        float endStateTime;
+
+        public ES_OpeningDoorBecausePlayerSteppedIn(ElevatorController elevatorController) : base(elevatorController)
+        {
+
+        }
+
+        public override void OnStateEnter()
+        {
+            eC.OpenDoors();
+            endStateTime = Time.time + waitTime;
+
+            //audio
+            eC.audioSource.clip = eC.openDoorsAudio;
+            eC.audioSource.Play();
+        }
+
+        public override void OnStateExit()
+        {
+
+        }
+
+        public override void UpdateState()
+        {
+            //Debug.Log("opening update");
+            if (Time.time > endStateTime)
+            {
+                //Debug.Log("Time.time: " + Time.time + " > " + endStateTime);
+                eC.SetNewState(eC.es_ClosingDoor);
+            }
+        }
+    }
+
     #endregion
 
     void Start()
@@ -313,6 +382,7 @@ public class ElevatorController : MonoBehaviour
         es_Moving = new ES_Moving(this);
         es_OpeningDoor = new ES_OpeningDoor(this);
         es_ClosingDoor = new ES_ClosingDoor(this);
+        es_OpeningDoorBecausePlayerSteppedIn = new ES_OpeningDoorBecausePlayerSteppedIn(this);
 
         currentState = es_WaitingClosedDoor;
     }
@@ -355,33 +425,40 @@ public class ElevatorController : MonoBehaviour
 
     void MoveToFloor(int floorID)
     {
-        previousTartgetFloorID = currentTartgetFloorID;
-        currentTartgetFloorID = floorID;
-        currentTargetFloorPosition = elevatorStopsManager.GetStopPostion(currentTartgetFloorID);
+        previousTartgetFloorID = currentTargetFloorID;
+        currentTargetFloorID = floorID;
+        currentTargetFloorPosition = elevatorStopsManager.GetStopPostion(currentTargetFloorID);
         currentState.OnMoveToFloorOrderIssued();
     }
 
     public void OnElevatorButtonPressed(ElevatorButton pressedButton)
     {
-        pressedButton.SetPressed();
+        //if we push the same button repeatadly or the button for the floor we are currently on, nothing will happen
 
-        //adjust the currently pressedButtons
         if (currentlyPressedButton)
         {
-            if(currentlyPressedButton != pressedButton)
+            if (currentlyPressedButton != pressedButton)
             {
                 currentlyPressedButton.SetReadyToBePressed();
             }
         }
-        currentlyPressedButton = pressedButton;
 
-        //MoveToFloor(pressedButton.targetFloorID);
-        previousTartgetFloorID = currentTartgetFloorID;
-        currentTartgetFloorID = pressedButton.targetFloorID;
-        currentTargetFloorPosition = elevatorStopsManager.GetStopPostion(currentTartgetFloorID);
-        currentState.OnMoveToFloorOrderIssued();
-            
+        if(pressedButton.targetFloorID != currentTargetFloorID)
+        {
+            pressedButton.SetPressed();
 
+            currentlyPressedButton = pressedButton;
+
+            //MoveToFloor(pressedButton.targetFloorID);
+            currentTargetFloorID = pressedButton.targetFloorID;
+            currentTargetFloorPosition = elevatorStopsManager.GetStopPostion(currentTargetFloorID);
+            currentState.OnMoveToFloorOrderIssued();
+        }   
+    }
+
+    public void OnPlayerEntersDangerousArea()
+    {
+        currentState.OnPlayerEntersDangerousArea();
     }
 
     void CloseDoors()
@@ -395,6 +472,7 @@ public class ElevatorController : MonoBehaviour
     {
         Debug.Log("open elevator Doors");
         elevatorDoor.Open();
-        elevatorStopsManager.GetOuterElevatorDoor(currentTartgetFloorID).Open();
+        elevatorStopsManager.GetOuterElevatorDoor(previousTartgetFloorID).Open();
     }
+
 }
