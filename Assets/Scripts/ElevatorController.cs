@@ -9,25 +9,36 @@ using UnityEngine;
 public class ElevatorController : MonoBehaviour
 {
     [Header("References")]
-    public Door elevatorDoor;
+    [SerializeField]
+    Door elevatorDoor;
 
     [Header("Elevator Movement")]
-    public float maxElevatorSpeed;
-    public float maxElevatorAcceleration;
+    [SerializeField]
+    float maxElevatorSpeed;
+    [SerializeField]
+    float maxElevatorAcceleration;
 
     [Header("Doors")]
     //[Tooltip("if this is true, the elevator will hold a queue of all the floors it has to visit and will visit them in the pressed order - just like in real life")]
-    //public bool useQueue;
-    public float timeBeforeDoorAutomaticallyCloses;
-    public float doorOpenOrCloseTime;
+    //public bool useQueue; //Will not be implemented for this test
+    [SerializeField]
+    float timeBeforeDoorAutomaticallyCloses;
+    [SerializeField]
+    float doorOpenOrCloseTime;
 
     [Header("Audio Feedback")]
-    public AudioSource elevatorMechanicAudioSource;
-    public AudioSource elevatorSpeaker;
-    public AudioClip openDoorsAudio;
-    public AudioClip movingAudio;
-    public AudioClip closingDoorsAudio;
-    public AudioClip closingDoorsErrorAudio;
+    [SerializeField]
+    AudioSource elevatorMechanicAudioSource;
+    [SerializeField]
+    AudioSource elevatorSpeaker;
+    [SerializeField]
+    AudioClip openDoorsAudio;
+    [SerializeField]
+    AudioClip movingAudio;
+    [SerializeField]
+    AudioClip closingDoorsAudio;
+    [SerializeField]
+    AudioClip closingDoorsErrorAudio;
 
     //forr keeping track of target floors
     ElevatorStop targetStop;
