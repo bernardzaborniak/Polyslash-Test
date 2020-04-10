@@ -5,21 +5,30 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     [Header("References")]
-    public Transform playerTransform;
-    public Transform cameraTransform;
-    public Rigidbody rb;
+    [SerializeField]
+    Transform playerTransform;
+    [SerializeField]
+    Transform cameraTransform;
+    [SerializeField]
+    Rigidbody rb;
 
     [Header("Controls")]
-    public float mouseSensitivity;
+    [SerializeField]
+    float mouseSensitivity;
     
     [Header("Physics Based Movement")]
-    public float maxMovementSpeed;
-    public float maxAcceleration;
-    public float maxDecceleration;
+    [SerializeField]
+    float maxMovementSpeed;
+    [SerializeField]
+    float maxAcceleration;
+    [SerializeField]
+    float maxDecceleration;
 
     [Header("For Clicking Buttons")]
-    public float clickButtonRaycastDistance;
-    public LayerMask clickButtonRaycastLayermask;
+    [SerializeField]
+    float clickButtonRaycastDistance;
+    [SerializeField]
+    LayerMask clickButtonRaycastLayermask;
 
     //used for movement and camera rotation
     float horizontalMouseMovement;
@@ -31,6 +40,7 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 
     void Update()

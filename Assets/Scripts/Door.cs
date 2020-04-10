@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class Door : MonoBehaviour
 {
-    public Animator animator;
+    [SerializeField]
+    Animator animator;
 
     public void Open()
     {
@@ -14,17 +15,5 @@ public class Door : MonoBehaviour
     public void Close()
     {
         animator.SetTrigger("close");
-    }
-
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.O))
-        {
-            Open();
-        }
-        if (Input.GetKeyDown(KeyCode.P))
-        {
-            Close();
-        }
     }
 }

@@ -46,6 +46,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   door: {fileID: 7002833113477619828}
+  gizmoMeshRepresentation: {fileID: 2258004447427125831, guid: 646d89c8b8ba2da43ab924a04be1d645,
+    type: 3}
 --- !u!1001 &183191094737944113
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -68,6 +70,11 @@ PrefabInstance:
       propertyPath: targetFloorID
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 5718378286894017419, guid: 25451db9e20ba13419d0398d62b93719,
+        type: 3}
+      propertyPath: targetStop
+      value: 
+      objectReference: {fileID: 5607282343961973059}
     - target: {fileID: 5718378286894017423, guid: 25451db9e20ba13419d0398d62b93719,
         type: 3}
       propertyPath: m_LocalPosition.x

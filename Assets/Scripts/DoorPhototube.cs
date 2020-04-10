@@ -8,9 +8,10 @@ using UnityEngine;
  [RequireComponent(typeof(Collider))]
 public class DoorPhototube : MonoBehaviour
 {
-    public ElevatorController elevatorController;
+    [SerializeField]
+    ElevatorController elevatorController;
 
-    private void OnTriggerEnter(Collider other)
+    private void OnTriggerStay(Collider other)
     {
         if(other.tag == "Player")
         {

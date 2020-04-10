@@ -6,22 +6,35 @@ using UnityEngine.Events;
 [RequireComponent(typeof(Collider))]
 public class ElevatorButton : MonoBehaviour, IInteractable
 {
-    public UnityEvent onPress;
 
-    public int targetFloorID;
+    public ElevatorStop targetStop;
+
+    [SerializeField]
+    UnityEvent onPress; 
 
     [Header("Audio-Visual Feedback")]
-    public MeshRenderer meshRenderer;
-    public Material normalMaterial;
-    public Material pressedMaterial;
-    public Animator buttonAnimator;
-    public AudioSource buttonAudioSource;
+    [SerializeField]
+    MeshRenderer meshRenderer;
+    [SerializeField]
+    Material normalMaterial;
+    [SerializeField]
+    Material pressedMaterial;
+    [SerializeField]
+    Animator buttonAnimator;
+    [SerializeField]
+    AudioSource buttonAudioSource;
 
 
     public void Interact()
     {
-        if(buttonAnimator) buttonAnimator.SetTrigger("press");
-        if (buttonAudioSource) buttonAudioSource.Play();
+        if (buttonAnimator)
+        {
+            buttonAnimator.SetTrigger("press");
+        }
+        if (buttonAudioSource)
+        {
+            buttonAudioSource.Play();
+        }
         onPress.Invoke();
     }
 
