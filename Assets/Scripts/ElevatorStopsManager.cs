@@ -13,6 +13,8 @@ public class ElevatorStopsManager : MonoBehaviour
     [Tooltip("the order of the stops is important")]
     public Transform[] elevatorStops;
 
+    public Mesh gizmoMesh;
+
     void Start()
     {
         
@@ -32,11 +34,11 @@ public class ElevatorStopsManager : MonoBehaviour
     //draws the Elevator stops
     private void OnDrawGizmos()
     {
-        Gizmos.color = Color.green;
+        Gizmos.color = new Color(0,0,0.7f,0.5f);
         for (int i = 0; i < elevatorStops.Length; i++)
         {
-            Gizmos.DrawCube(elevatorStops[i].position, Vector3.one);
-            
+            // Gizmos.DrawCube(elevatorStops[i].position, Vector3.one);
+            Gizmos.DrawMesh(gizmoMesh, elevatorStops[i].position, elevatorStops[i].rotation, Vector3.one);
         }
     }
 }
