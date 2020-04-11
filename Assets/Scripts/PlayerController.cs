@@ -51,12 +51,19 @@ public class PlayerController : MonoBehaviour
         horizontalMouseMovement = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
         verticalMouseMovement = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
 
-      
+        // apply camera rotation
+        verticalCameraRotation -= verticalMouseMovement;
+        verticalCameraRotation = Mathf.Clamp(verticalCameraRotation, -85f, 85f);
+
+        cameraTransform.localRotation = Quaternion.Euler(verticalCameraRotation, 0f, 0f);
+        playerTransform.rotation = playerTransform.rotation * Quaternion.Euler(playerTransform.up * horizontalMouseMovement);
+
         // movement input
         movementVector = Vector3.zero;
         float horizontalMovementInput = Input.GetAxis("Horizontal");
         float verticalMovementInput = Input.GetAxis("Vertical");
-        movementVector = playerTransform.TransformDirection(new Vector3(horizontalMovementInput, 0f, verticalMovementInput)); //convert the movement vector from local player space into world space
+        // Converts the movement vector from local player space into world space.
+        movementVector = playerTransform.TransformDirection(new Vector3(horizontalMovementInput, 0f, verticalMovementInput)); 
 
         // interaction
         if (Input.GetMouseButtonDown(0))
@@ -77,16 +84,6 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        #region Apply Camera Rotation
-
-        verticalCameraRotation -= verticalMouseMovement;
-        verticalCameraRotation = Mathf.Clamp(verticalCameraRotation, -85f, 85f);
-
-        cameraTransform.localRotation = Quaternion.Euler(verticalCameraRotation, 0f, 0f);
-        rb.MoveRotation(rb.rotation * Quaternion.Euler(playerTransform.up * horizontalMouseMovement));
-
-        #endregion
-
         #region Apply Movement
 
         Vector3 rbHorizontalVelocity = new Vector3(rb.velocity.x, 0, rb.velocity.z);
