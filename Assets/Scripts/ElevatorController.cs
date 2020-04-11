@@ -247,7 +247,7 @@ public class ElevatorController : MonoBehaviour
             eC.transform.position += new Vector3(0,  currentVelocity*Time.deltaTime, 0);
 
             // check if arrived
-            if (eC.transform.position == eC.targetStop.transform.position)
+            if ((eC.transform.position - eC.targetStop.transform.position).magnitude<0.005f)
             {
                 eC.lastPressedButton.SetReadyToBePressed();
                 eC.lastTargetStop = eC.targetStop;
