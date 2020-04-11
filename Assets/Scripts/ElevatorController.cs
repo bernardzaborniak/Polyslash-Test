@@ -182,6 +182,10 @@ public class ElevatorController : MonoBehaviour
                 eC.elevatorSpeaker.clip = eC.elevatorMusic;
                 eC.elevatorSpeaker.loop = true;
                 eC.elevatorSpeaker.Play();
+
+                // To get rid of the player jumping around while drien by physics and moving down inside the elevator,
+                // we set him as child to the elevator during the elevator movement.
+                eC.SetPlayerParentToElevator();
             }
          
         }
@@ -193,6 +197,8 @@ public class ElevatorController : MonoBehaviour
 
             eC.elevatorMechanicAudioSource.Stop();
             eC.elevatorMechanicAudioSource.loop = false;
+
+            eC.ResetPlayerParent();
         }
 
         public override void UpdateState()
@@ -366,7 +372,7 @@ public class ElevatorController : MonoBehaviour
             currentState.OnStateExit();
             Debug.Log("old state: " + currentState);
             currentState = newState;
-            Debug.Log("new: " + currentState);
+            Debug.Log("new state: " + currentState);
             currentState.OnStateEnter();
 
         }
@@ -442,6 +448,34 @@ public class ElevatorController : MonoBehaviour
         }
 
         return false;
+    }
+
+    public void SetPlayerParentToElevator()
+    {
+        Collider[] colliders;
+        colliders = Physics.OverlapBox(transform.position + transform.up, new Vector3(2, 2, 2));
+
+        for (int i = 0; i < colliders.Length; i++)
+        {
+            if (colliders[i].tag == "Player")
+            {
+                colliders[i].transform.SetParent(transform);
+            }
+        }
+    }
+
+    public void ResetPlayerParent()
+    {
+        Collider[] colliders;
+        colliders = Physics.OverlapBox(transform.position + transform.up, new Vector3(2, 2, 2));
+
+        for (int i = 0; i < colliders.Length; i++)
+        {
+            if (colliders[i].tag == "Player")
+            {
+                colliders[i].transform.SetParent(null);
+            }
+        }
     }
 
 }
